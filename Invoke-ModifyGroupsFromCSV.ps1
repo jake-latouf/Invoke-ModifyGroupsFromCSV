@@ -1,3 +1,4 @@
+$global:ErrorActionPreference = 'Stop'
 function Invoke-ModifyGroupsFromCsv {
     [CmdletBinding()]
     param (
@@ -20,8 +21,8 @@ function Invoke-ModifyGroupsFromCsv {
         $invalidActions = @()
         foreach ($row in $csvData) {
             try {
-                $user = Get-ADUser -Filter "EmployeeID -eq '$($row.TMID.trim())'" -ErrorAction Stop
-                $group = Get-ADGroup -Filter "Name -eq '$($row.GroupName.trim())'" -ErrorAction Stop
+                $user = Get-ADUser -Filter "EmployeeID -eq '$($row.TMID.trim())'" 
+                $group = Get-ADGroup -Filter "Name -eq '$($row.GroupName.trim())'" 
 
                 if ($user -eq $null) {
                     throw "User $($row.TMID) not found"
@@ -38,7 +39,7 @@ function Invoke-ModifyGroupsFromCsv {
                     Action = $row.Action.trim()
                 }
 
-                if ($user -and $group) {
+                if (($user -ne $null) -and ($group -ne $null)) {
                     switch ($InstructionSet.Action) {
                         "Add" {
                             Write-Verbose "Adding $($InstructionSet.User) to $($InstructionSet.Group)"
@@ -87,4 +88,4 @@ function Invoke-ModifyGroupsFromCsv {
 $CSVFILE = Read-Host "Enter the path to your csv file"
 $credentials = Get-Credential
 
-Invoke-ModifyGroupsFromCsv -CSVFILE $CSVFILE -creds $credentials
+Invoke-ModifyGroupsFromCsv -CSVFILE $CSVFILE -creds $credentials -Verbose
